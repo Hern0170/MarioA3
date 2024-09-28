@@ -5,9 +5,10 @@ using UnityEngine;
 public enum EEnemyType : byte
 {
     Unknown,
-    PiranhaPlant
-
-        //TODO: Add additional EnemyType enumerators here
+    PiranhaPlant,
+    FirePiranhaPlant,
+    FireBall
+    //TODO: Add additional EnemyType enumerators here
 }
 
 public class Enemy : MonoBehaviour

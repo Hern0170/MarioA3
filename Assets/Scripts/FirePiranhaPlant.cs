@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public enum EFirePiranhaPlantState : byte
     Hiding,
     AnimatingUp,
     Active,
+    Fire,
     AnimatingDown
 }
 
@@ -33,6 +35,10 @@ public class FirePiranhaPlant : Enemy
     private Vector2 activeLocation = Vector2.zero;
     private float holdTimer = 0.0f;
     private float animationTimer = 0.0f;
+    private float animationFireTimer = 0.0f;
+
+    public GameObject fireBallPrefab;
+    public float fireBallSpeed = 3.5f;
 
     public EFirePiranhaPlantState State
     {
@@ -93,6 +99,15 @@ public class FirePiranhaPlant : Enemy
             if (holdTimer <= 0.0f)
             {
                 holdTimer = 0.0f;
+                SetState(EFirePiranhaPlantState.Fire);
+            }
+        }
+        else if (state == EFirePiranhaPlantState.Fire)
+        {
+            holdTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
+            if (holdTimer <= 0.0f)
+            {
+                holdTimer = 0.0f;
                 SetState(EFirePiranhaPlantState.AnimatingDown);
             }
         }
@@ -144,10 +159,44 @@ public class FirePiranhaPlant : Enemy
                 transform.position = activeLocation;
                 holdTimer = EnemyConstants.FirePiranhaPlantActiveDuration;
             }
+            else if (state == EFirePiranhaPlantState.Fire)
+            {
+                SetFireDirection();
+                SetState(EFirePiranhaPlantState.AnimatingDown);
+            }
             else if (state == EFirePiranhaPlantState.AnimatingDown)
             {
                 animationTimer = EnemyConstants.FirePiranhaPlantAnimationDuration;
             }
+        }
+    }
+
+    private void SetFireDirection()
+    {
+        if (directionX != EFireplantDirectionX.Right)
+        {
+            directionX = EFireplantDirectionX.Left;
+            Vector3 scale = transform.localScale;
+            scale.x = 1.0f;  // Voltea a la izquierda.
+            transform.localScale = scale;
+        }
+        else
+        {
+            directionX = EFireplantDirectionX.Right;
+            Vector3 scale = transform.localScale;
+            scale.x = -1.0f;  // Voltea a la derecha.
+            transform.localScale = scale;
+        }
+
+        if (directionY != EFireplantDirectionY.Up)
+        {
+            directionY = EFireplantDirectionY.Down;
+            animator.Play("FirePiranhaPlantDownOpen");
+        }
+        else
+        {
+            directionY = EFireplantDirectionY.Up;
+            animator.Play("FirePiranhaPlantUpOpen");
         }
     }
 
@@ -172,10 +221,44 @@ public class FirePiranhaPlant : Enemy
         {
             directionY = EFireplantDirectionY.Down;
             animator.Play("FirePiranhaPlantDownClose");
-        } else
+        }
+        else
         {
             directionY = EFireplantDirectionY.Up;
             animator.Play("FirePiranhaPlantUpClose");
         }
+    }
+
+    private void Fire()
+    {
+        if (fireBallPrefab != null)
+        {
+            GameObject fireBall = Instantiate(fireBallPrefab, transform.position, Quaternion.identity);
+            Rigidbody2D rb = fireBall.GetComponent<Rigidbody2D>();
+
+            Vector2 fireDirection = Vector2.zero;
+            if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Down)
+            {
+                fireDirection = new Vector2(fireBallSpeed, -fireBallSpeed);
+            }
+            else if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Up)
+            {
+                fireDirection = new Vector2(fireBallSpeed, fireBallSpeed);
+            }
+            else if (directionX == EFireplantDirectionX.Left && directionY == EFireplantDirectionY.Down)
+            {
+                fireDirection = new Vector2(-fireBallSpeed, -fireBallSpeed);
+            }
+            else if (directionX == EFireplantDirectionX.Left && directionY == EFireplantDirectionY.Up)
+            {
+                fireDirection = new Vector2(-fireBallSpeed, fireBallSpeed);
+            }
+
+            if (rb != null)
+            {
+                rb.velocity = fireDirection;
+            }
+        }
+
     }
 }

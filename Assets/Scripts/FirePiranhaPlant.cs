@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Unity.VisualScripting;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.InputSystem.OSX;
+
 
 public enum EFirePiranhaPlantState : byte
 {
@@ -11,6 +12,7 @@ public enum EFirePiranhaPlantState : byte
     AnimatingUp,
     Active,
     Fire,
+    FiringDelay,
     AnimatingDown
 }
 
@@ -35,7 +37,7 @@ public class FirePiranhaPlant : Enemy
     private Vector2 activeLocation = Vector2.zero;
     private float holdTimer = 0.0f;
     private float animationTimer = 0.0f;
-    private float animationFireTimer = 0.0f;
+    private bool shooted = false;
 
     public GameObject fireBallPrefab;
     public float fireBallSpeed = 3.5f;
@@ -63,10 +65,11 @@ public class FirePiranhaPlant : Enemy
     // Update is called once per frame
     void Update()
     {
+
         Vector2 marioLocation = Game.Instance.MarioGameObject.transform.position;
 
         // Determina la dirección horizontal.
-        SetLookingDirection(marioLocation.x < transform.position.x, marioLocation.y < transform.position.y);
+
         if (state == EFirePiranhaPlantState.Hiding)
         {
             holdTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
@@ -80,7 +83,7 @@ public class FirePiranhaPlant : Enemy
         else if (state == EFirePiranhaPlantState.AnimatingUp)
         {
             animationTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
-
+            SetLookingDirection(marioLocation.x < transform.position.x, marioLocation.y < transform.position.y);
             float pct = 1.0f - (animationTimer / EnemyConstants.FirePiranhaPlantAnimationDuration);
             float locationX = Mathf.Lerp(hidingLocation.x, activeLocation.x, pct);
             float locationY = Mathf.Lerp(hidingLocation.y, activeLocation.y, pct);
@@ -94,6 +97,7 @@ public class FirePiranhaPlant : Enemy
         }
         else if (state == EFirePiranhaPlantState.Active)
         {
+            SetLookingDirection(marioLocation.x < transform.position.x, marioLocation.y < transform.position.y);
             holdTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
 
             if (holdTimer <= 0.0f)
@@ -105,6 +109,22 @@ public class FirePiranhaPlant : Enemy
         else if (state == EFirePiranhaPlantState.Fire)
         {
             holdTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
+            SetFireDirection();
+            if (!shooted)
+            {
+                shooted = true;
+                Fire();
+            }
+            if (holdTimer <= 0.0f)
+            {
+                holdTimer = 0.0f;
+                SetState(EFirePiranhaPlantState.FiringDelay);
+            }
+        }
+        else if (state == EFirePiranhaPlantState.FiringDelay)
+        {
+            holdTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
+            SetLookingDirection(marioLocation.x < transform.position.x, marioLocation.y < transform.position.y);
             if (holdTimer <= 0.0f)
             {
                 holdTimer = 0.0f;
@@ -113,6 +133,7 @@ public class FirePiranhaPlant : Enemy
         }
         else if (state == EFirePiranhaPlantState.AnimatingDown)
         {
+            SetLookingDirection(marioLocation.x < transform.position.x, marioLocation.y < transform.position.y);
             animationTimer -= Time.deltaTime * Game.Instance.LocalTimeScale;
 
             float pct = 1.0f - (animationTimer / EnemyConstants.FirePiranhaPlantAnimationDuration);
@@ -137,12 +158,13 @@ public class FirePiranhaPlant : Enemy
             if (state == EFirePiranhaPlantState.Hiding)
             {
                 transform.position = hidingLocation;
+                shooted = false;
                 holdTimer = UnityEngine.Random.Range(EnemyConstants.FirePiranhaPlantHiddenDurationMin, EnemyConstants.FirePiranhaPlantHiddenDurationMax);
             }
             else if (state == EFirePiranhaPlantState.AnimatingUp)
             {
                 // Get Mario's location
-                Vector2 marioLocation = Game.Instance.MarioGameObject.transform.position;
+                Vector2 marioLocation = Game.Instance.MarioGameObject.transform.position ;
 
                 // Check if Mario is on top of the pipe, if he is, don't spawn the piranha plant
                 bool checkY = Mathf.Clamp(marioLocation.x, activeLocation.x - 1.0f, activeLocation.x + 1.0f) == marioLocation.x;
@@ -161,8 +183,11 @@ public class FirePiranhaPlant : Enemy
             }
             else if (state == EFirePiranhaPlantState.Fire)
             {
-                SetFireDirection();
-                SetState(EFirePiranhaPlantState.AnimatingDown);
+                holdTimer = EnemyConstants.FirePiranhaPlantAnimationFireTimer;
+            }
+            else if (state == EFirePiranhaPlantState.FiringDelay)
+            {
+                holdTimer = holdTimer = UnityEngine.Random.Range(EnemyConstants.FirePiranhaPlantHiddenDurationMin, EnemyConstants.FirePiranhaPlantHiddenDurationMax);
             }
             else if (state == EFirePiranhaPlantState.AnimatingDown)
             {
@@ -173,30 +198,26 @@ public class FirePiranhaPlant : Enemy
 
     private void SetFireDirection()
     {
-        if (directionX != EFireplantDirectionX.Right)
+        // Asegura que la escala y la animación se configuran correctamente según la dirección actual
+        if (directionX == EFireplantDirectionX.Left)
         {
-            directionX = EFireplantDirectionX.Left;
-            Vector3 scale = transform.localScale;
-            scale.x = 1.0f;  // Voltea a la izquierda.
-            transform.localScale = scale;
+            transform.localScale = new Vector3(1.0f, 1.0f, 1.0f); // Voltea a la izquierda
         }
         else
         {
-            directionX = EFireplantDirectionX.Right;
-            Vector3 scale = transform.localScale;
-            scale.x = -1.0f;  // Voltea a la derecha.
-            transform.localScale = scale;
+            transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f); // Voltea a la derecha
         }
 
-        if (directionY != EFireplantDirectionY.Up)
+        // Determina y reproduce la animación basada en la dirección vertical actual
+        if (directionY == EFireplantDirectionY.Up)
         {
-            directionY = EFireplantDirectionY.Down;
-            animator.Play("FirePiranhaPlantDownOpen");
+
+            animator.Play("FirePiranhaPlantUpOpen"); // Asumiendo que este es el nombre correcto de la animación
         }
         else
         {
-            directionY = EFireplantDirectionY.Up;
-            animator.Play("FirePiranhaPlantUpOpen");
+
+            animator.Play("FirePiranhaPlantDownOpen"); // Asumiendo que este es el nombre correcto de la animación
         }
     }
 
@@ -233,32 +254,31 @@ public class FirePiranhaPlant : Enemy
     {
         if (fireBallPrefab != null)
         {
-            GameObject fireBall = Instantiate(fireBallPrefab, transform.position, Quaternion.identity);
-            Rigidbody2D rb = fireBall.GetComponent<Rigidbody2D>();
+            Vector2 fireDirection = new Vector2(0, 0);
+            Vector2 spawnPosition = transform.position + new Vector3(0, 1.5f, 0); // Ajusta la posición para que la bola de fuego aparezca un poco más arriba de la planta.
 
-            Vector2 fireDirection = Vector2.zero;
-            if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Down)
+            if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Up)
             {
-                fireDirection = new Vector2(fireBallSpeed, -fireBallSpeed);
+                fireDirection = new Vector2(3.5f, 3.5f);
             }
-            else if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Up)
+            else if (directionX == EFireplantDirectionX.Right && directionY == EFireplantDirectionY.Down)
             {
-                fireDirection = new Vector2(fireBallSpeed, fireBallSpeed);
-            }
-            else if (directionX == EFireplantDirectionX.Left && directionY == EFireplantDirectionY.Down)
-            {
-                fireDirection = new Vector2(-fireBallSpeed, -fireBallSpeed);
+                fireDirection = new Vector2(3.5f, -3.5f);
             }
             else if (directionX == EFireplantDirectionX.Left && directionY == EFireplantDirectionY.Up)
             {
-                fireDirection = new Vector2(-fireBallSpeed, fireBallSpeed);
+                fireDirection = new Vector2(-3.5f, 3.5f);
             }
-
-            if (rb != null)
+            else // Left and Down
             {
-                rb.velocity = fireDirection;
+                fireDirection = new Vector2(-3.5f, -3.5f);
             }
-        }
 
+            // Llama a la función SpawnFireBall en Game.cs
+            Game.Instance.SpawnFireBall(spawnPosition, fireDirection);
+        }
     }
+
+
+
 }

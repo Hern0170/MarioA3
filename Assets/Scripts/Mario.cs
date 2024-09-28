@@ -141,7 +141,6 @@ public class Mario : MonoBehaviour
             if (transform.position.y < GameConstants.DestroyActorAtY)
                 MarioHasDied(false);
 
-            Debug.Log("Running meter: " + marioState.RunningMeter);
         }
     }
 

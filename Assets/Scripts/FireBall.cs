@@ -4,18 +4,29 @@ using UnityEngine;
 
 public class FireBall : Enemy
 {
-
     private Rigidbody2D rb;
-    // Start is called before the first frame update
+    private Vector2 _direction;
+    public Vector2 Direction 
+    { 
+        get { return _direction; } 
+        set { _direction = value; }
+    }
     void Start()
     {
         enemyType = EEnemyType.FireBall;
         rb = GetComponent<Rigidbody2D>();
+        Launch(_direction);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
     }
+
+
+    public void Launch(Vector2 direction)
+    {
+        if(rb ==null) return;
+        rb.velocity = direction * EnemyConstants.FireBallSpeed;
+    }
+
 }

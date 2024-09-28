@@ -4083,6 +4083,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   marioGameObject: {fileID: 938754309}
   deadMarioPrefab: {fileID: 2323012742843744412, guid: d6d6563a16a11884493ff8210f2fd885, type: 3}
+  fireBallPrefab: {fileID: 4802628159126858751, guid: 0d31493362d3111429327991e70d1c47, type: 3}
 --- !u!4 &666184305
 Transform:
   m_ObjectHideFlags: 0
@@ -4483,69 +4484,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c3f760f870bc0742b44f3a572a9a9cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireBallPrefab: {fileID: 0}
+  fireBallPrefab: {fileID: 4802628159126858751, guid: 0d31493362d3111429327991e70d1c47, type: 3}
   fireBallSpeed: 3.5
---- !u!1001 &1809242490
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2219178722274050192, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2562098215554914283, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_Name
-      value: PiranhaPlant
-      objectReference: {fileID: 0}
-    - target: {fileID: 6039283095662859008, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: e5e132fad09daa241960d12afcb17152, type: 2}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: da12311cfbf8d864ba401fc34309112f, type: 3}
 --- !u!1 &1822495744
 GameObject:
   m_ObjectHideFlags: 0
@@ -5786,7 +5726,7 @@ Transform:
   m_GameObject: {fileID: 5994709114764900390}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.02, y: -1.03, z: 0}
+  m_LocalPosition: {x: -0.93, y: -1.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5801,5 +5741,4 @@ SceneRoots:
   - {fileID: 938754313}
   - {fileID: 554087835}
   - {fileID: 666184305}
-  - {fileID: 1809242490}
   - {fileID: 7958706784855371613}
